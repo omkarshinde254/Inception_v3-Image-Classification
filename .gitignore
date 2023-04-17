@@ -1,2 +1,4 @@
 input/inception_v3.ckpt
-l-venv/
+l-env/
+*.ckpt
+mysite/inception_api/input/*
