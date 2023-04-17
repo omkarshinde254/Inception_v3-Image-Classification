@@ -19,6 +19,7 @@ from tf_slim.nets import inception
 import tf_slim as slim
 import cv2
 
+current_path = os.path.join(os.getcwd(), 'inception_api')
 ckpt_path = os.path.join(current_path, "input/inception_v3.ckpt")
 images_path = os.path.join(current_path, "images/*")
 img_width = 299
@@ -60,11 +61,12 @@ def load_images(input_dir):
 def start_prediction():
     predict_output=[]
     return_arr = []
+
     X = tf.placeholder(tf.float32, shape=batch_shape)
 
     with slim.arg_scope(inception.inception_v3_arg_scope()):
         logits, end_points = inception.inception_v3(
-            X, num_classes=num_classes, is_training=False
+            X, num_classes=num_classes, is_training=False, reuse=tf.AUTO_REUSE
         )
 
     predictions = end_points["Predictions"]
@@ -87,7 +89,7 @@ def start_prediction():
         topPredict = sorted(range(len(out_list)), key=lambda i: out_list[i], reverse=True)[:5]
         for p in topPredict:
             return_arr.append(class_names[p-1].strip())
-    
+
     return return_arr
 
 
