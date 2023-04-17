@@ -104,14 +104,17 @@ def base64_to_image(base64_string):
 # Create your views here.
 @api_view(['POST'])
 def get_classification(request):
-    classification = {
-        'classification': 'dog'
-    }
+    rarr = []
     # print("Got request- ", request.data)
     image = base64_to_image(request.data['image'])
     prediction_output = start_prediction()
-    print("prediction_output: ", prediction_output)
-    return Response({'status': 'success', 'classification': classification})
+    # print("prediction_output: ", prediction_output)
+    
+    for val in prediction_output:
+        rarr.append(' '.join(val.split(' ')[1:]))
+
+    # print("Rarray- ", rarr)
+    return Response({'status': 'success', 'prediction': rarr})
     
 def index(request):
     return HttpResponse("Hello, world. You're at the inception_api index.")

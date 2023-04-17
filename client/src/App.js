@@ -3,6 +3,8 @@ import React, { useState } from "react";
 function App() {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [imageName, setImageName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [prediction, setPrediction] = useState([]);
 
   function handleImageUpload(event) {
     const image = event.target.files[0];
@@ -16,10 +18,52 @@ function App() {
     reader.readAsDataURL(image);
   }
 
+  function handlePredictClick() {
+    if (!uploadedImage) {
+      alert("Please upload an image first.");
+      return;
+    }
+
+    setLoading(true);
+    let dots = "";
+    const intervalId = setInterval(() => {
+      if (dots.length === 3) {
+        dots = "";
+      } else {
+        dots += ".";
+      }
+      setPrediction(`Loading${dots}`);
+    }, 500);
+
+    let bs64 = uploadedImage.split(";")[1].split(",")[1];
+    fetch("http://127.0.0.1:8000/get_classification/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        image: bs64
+      })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        clearInterval(intervalId);
+        setLoading(false);
+        // setPrediction(data.prediction);
+        setPrediction(data.prediction);
+      })
+      .catch((error) => {
+        clearInterval(intervalId);
+        setLoading(false);
+        console.log(error);
+      });
+  }
   return (
     <div className="grid grid-cols-10 h-screen">
       <div className="col-span-8 bg-gray-100 flex justify-center items-center">
-        {uploadedImage ? (
+        {loading ? (
+          <p className="text-lg font-medium">{prediction}</p>
+        ) : uploadedImage ? (
           <img
             src={uploadedImage}
             alt="Uploaded"
@@ -36,10 +80,12 @@ function App() {
         <div className="py-4 px-2">
           <div htmlFor="image-upload" className="pb-1 font-bold text-lg">
             Upload Image
-          </div> <br></br>
+          </div>
           <p className="text-base font-normal mb-2">
-            <span className="font-semibold">Name: </span>{imageName ? imageName : "No image uploaded"} <br></br>
-            <span className="font-semibold">Prediction: </span>None
+            <span className="font-semibold">Name: </span>
+            {imageName ? imageName : "No image uploaded"} <br />
+            <span className="font-semibold">Top Predictions: </span>
+            {prediction ? prediction : "No prediction"}
           </p>
           <input
             type="file"
@@ -49,12 +95,18 @@ function App() {
             className="hidden"
           />
         </div>
-        <div className="pb-4 px-2">
+        <div className="pb-4 px-2 flex-grow absolute bottom-2 right-2 w-72">
           <button
             onClick={() => document.getElementById("image-upload").click()}
-            className="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+            className="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700 mb-2"
           >
             Choose File
+          </button>
+          <button
+            onClick={handlePredictClick}
+            className="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+          >
+            Predict
           </button>
         </div>
       </div>
