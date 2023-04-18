@@ -1,6 +1,6 @@
 input/inception_v3.ckpt
 l-env/
 # *.ckpt
-mysite/inception_api/input/inception_v3.ckpt
+# mysite/inception_api/input/inception_v3.ckpt
 # mysite/inception_api/input/inception_v3.ckpt.zip
 *.pyc
