@@ -36,7 +36,7 @@ function App() {
     }, 500);
 
     let bs64 = uploadedImage.split(";")[1].split(",")[1];
-    fetch("http://omkarshinde254.pythonanywhere.com/get_classification/", {
+    fetch("https://omkarshinde254.pythonanywhere.com/get_classification/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
